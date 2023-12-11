@@ -1,4 +1,4 @@
-# vue3-app
+# Hyper Mario
 
 ## Project setup
 ```
