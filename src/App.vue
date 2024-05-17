@@ -1,17 +1,19 @@
 <template>
-  <!-- <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav> -->
-  <!-- <router-view/> -->
-  <HyperMario/>
+  <router-view/>
 </template>
 
 <script setup lang="ts">
-import HyperMario from "./components/HyperMario.vue";
 </script>
 
 <style lang="scss">
 @import "./styles/global.scss";
 @import "./styles/null.scss";
+
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+@font-face {
+  font-family: "PressStart";
+  src: url("../public/assets/fonts/PressStart2P.ttf");
+}
+
 </style>

@@ -1,3 +1,22 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+body {
+  background-color: rgb(12, 12, 12);
+  color: white;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  font-family: "Rubik", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.text-secondary {
+  color: #ef3038;
+  font-weight: 500;
+  font-size: 1.05rem;
+}
+
+.retro-font {
+  font-family: "PressStart";
+}
