@@ -1,10 +1,10 @@
 import Block from "../entities/block";
 import Breakable from "../entities/breakable";
-import Coin from "../entities/coin"; 
-import Goomba from "../entities/goomba"; 
-import Koopa from "../entities/koopa"; 
-import Mario from "../entities/mario"; 
-import Mushroom from "../entities/mushroom"; 
+import Coin from "../entities/coin";
+import Goomba from "../entities/goomba";
+import Koopa from "../entities/koopa";
+import Mario from "../entities/mario";
+import Mushroom from "../entities/mushroom";
 import {
   Brick,
   Castle,
@@ -18,8 +18,18 @@ import {
   Shrub,
   SmallCloud,
 } from "../entities/scenery";
-import Score from "../entities/score"; 
-import MapBuilder from "../map/builder"; 
+import Score from "../entities/score";
+import Sprite from "../entities/sprite";
+import MapBuilder from "../map/builder";
+
+export type BaseEntity = {
+  type: string; // Тип сущности
+  sprite: Sprite; // Спрайт-изображение сущности
+  xPos: number; // Позиция X
+  yPos: number; // Позиция Y
+  width: number; // Ширина
+  height: number; // Высота
+};
 
 export type Entity =
   | Block

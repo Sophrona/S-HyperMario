@@ -4,7 +4,7 @@
       <div class="hyper-mario__col hyper-mario__col--2">
         <audio
           class="hyper-mario__bg-music"
-          ref="backgroundMusic"
+          ref="bgMusic"
           src="./assets/audio/music/mario_theme.mp3"
           loop
         ></audio>
@@ -57,8 +57,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from "vue";
-import { game } from "@/game";
+import { ref, nextTick, onMounted } from "vue";
+import Game from "@/game";
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 
@@ -75,8 +75,9 @@ const bestScore = ref(0);
 const endGame = (newScore: number) => {
   if (newScore > bestScore.value) {
     bestScore.value = newScore;
+    localStorage.setItem("bestScore", newScore.toString());
   }
-  playing.value = !playing.value;
+  playing.value = false;
 };
 
 const toggleMute = () => {
@@ -91,26 +92,43 @@ const startGame = () => {
     playing.value = true;
     nextTick(() => {
       if (canvasRef.value) {
-        game.init(canvasRef.value, canvasWidth, canvasHeight, bgMusic.value, endGame);
+        const gameInstance = new Game();
+        
+        gameInstance.init(
+          canvasRef.value,
+          canvasWidth,
+          canvasHeight,
+          bgMusic.value,
+          endGame
+        );
       } else {
         console.error("Canvas element is not yet available");
       }
     });
   }
 };
+
+onMounted(() => {
+  const storedBestScore = localStorage.getItem("bestScore");
+  if (storedBestScore !== null) {
+    bestScore.value = parseInt(storedBestScore, 10);
+  }
+});
 </script>
 
 <style lang="scss" scoped>
 .ui {
   display: flex;
   flex-direction: column;
-  gap: 50px;
+  gap: 30px;
 
   font-size: 1.5rem;
 
   button {
-    transition: 0.1s ease-out;
     color: #ffdf00;
+    align-self: center;
+    transition: 0.1s ease-out;
+    padding: 10px;
 
     &:hover {
       opacity: 0.75;

@@ -2,17 +2,7 @@ import Coin from "../entities/coin"; // Импорт монеты
 import Goomba from "../entities/goomba"; // Импорт Гумбы
 import Koopa from "../entities/koopa"; // Импорт Купы
 import Mushroom from "../entities/mushroom"; // Импорт гриба
-import Sprite from "../entities/sprite"; // Импорт спрайта
-import { Data } from "./types"; // Импорт типов данных
-
-interface Entity {
-  type: string; // Тип сущности
-  sprite: Sprite; // Спрайт-изображение сущности
-  xPos: number; // Позиция X
-  yPos: number; // Позиция Y
-  width: number; // Ширина
-  height: number; // Высота
-}
+import { BaseEntity, Data } from "./types"; // Импорт типов данных
 
 class Render {
   init(data: Data) {
@@ -50,7 +40,7 @@ class Render {
     this.drawEntity(data.entities.mario, data); // Рендер Марио
   }
 
-  drawEntity(entity: Entity, data: Data) {
+  drawEntity(entity: BaseEntity, data: Data) {
     if (
       entity.xPos + entity.width >= data.viewport.vX &&
       entity.xPos + entity.width <= data.viewport.vX + data.viewport.width &&
@@ -82,4 +72,4 @@ class Render {
   }
 }
 
-export default new Render();
+export default Render;

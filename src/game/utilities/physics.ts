@@ -37,12 +37,12 @@ class Physics {
     // Список объектов, с которыми возможны столкновения
     const collidables = [
       data.entities.coins, // Монеты
-      data.entities.mushrooms, // Грибки
+      data.entities.mushrooms, // Грибы
       data.entities.goombas, // Гумбы
       data.entities.koopas, // Купы
     ];
 
-    // Проверка столкновений с персонажем
+    // Проверка столкновений с Марио
     const entityCollisionCheck = (entity: Entity) => {
       if (
         // Проверка столкновения по горизонтали
@@ -213,7 +213,6 @@ class Physics {
 
   // Обработка смерти Марио
   marioDeath(data: Data) {
-
     // Отключение управления Марио
     data.userControl = false;
 
@@ -319,6 +318,8 @@ class Physics {
 
   // Завершение уровня
   levelFinish(data: Data) {
+    if (this.gameOver) return;
+
     // Остановка движения Марио
     data.entities.mario.velX = 0;
     data.entities.mario.velY = 0;
@@ -332,6 +333,8 @@ class Physics {
 
     // Воспроизведение звука завершения уровня
     data.sounds.levelFinish.play();
+
+    this.gameOver = true;
 
     // После длительной задержки сброс игры
     setTimeout(() => {
@@ -492,4 +495,4 @@ class Physics {
   }
 }
 
-export default new Physics();
+export default Physics;

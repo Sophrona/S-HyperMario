@@ -1,4 +1,4 @@
-import { Data } from "./types"; 
+import { Data } from "./types";
 
 class Input {
   down: { [key: string]: boolean }; // Состояние нажатия клавиш
@@ -87,4 +87,4 @@ class Input {
   }
 }
 
-export default new Input();
+export default Input;

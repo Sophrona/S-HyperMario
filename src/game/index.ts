@@ -15,15 +15,24 @@ import { levelOne } from "./map/lvl_1-1";
 type endGameFunction = (newScore: number) => void;
 
 class Game {
-  scoreInstance: Score | null = null; // Очки игры, изначально null
+  scoreInstance: Score = new Score(5, 15); // Очки игры, изначально null
+  inputInstance: Input = new Input();
+  animationInstance: Animation = new Animation();
+  movementInstance: Movement = new Movement();
+  physicsInstance: Physics = new Physics();
+  renderInstance: Render = new Render();
   resetRequested = false; // Флаг запроса сброса игры, изначально false
   animationFrameId: number | null = null; // Идентификатор текущего кадра анимации, изначально null
   endGame: endGameFunction | null = null; // Функция окончания игры, изначально null
 
   // Загрузка всех ассетов игры
   async loadAssets(): Promise<[HTMLImageElement, HTMLImageElement]> {
-    const spriteSheetPromise = this.loadImage("./assets/sprites/spritesheet.png");
-    const tilesetPromise = this.loadImage("./assets/sprites/tileset_gutter.png");
+    const spriteSheetPromise = this.loadImage(
+      "./assets/sprites/spritesheet.png"
+    );
+    const tilesetPromise = this.loadImage(
+      "./assets/sprites/tileset_gutter.png"
+    );
 
     return Promise.all([spriteSheetPromise, tilesetPromise]);
   }
@@ -48,7 +57,7 @@ class Game {
   ) {
     if (!canvasElement) return;
 
-    this.endGame = onEndGame; 
+    this.endGame = onEndGame;
     const ctx = canvasElement.getContext("2d") as CanvasRenderingContext2D; // Получение контекста отображения 2D
     ctx.scale(3, 3); // Установка масштаба отображения
 
@@ -57,9 +66,15 @@ class Game {
 
     try {
       const [spriteSheet, tileset] = await this.loadAssets(); // Загрузка всех ассетов
-      const data = this.createGameData(canvas, viewport, spriteSheet, tileset, bgMusic); // Создание игровых данных
+      const data = this.createGameData(
+        canvas,
+        viewport,
+        spriteSheet,
+        tileset,
+        bgMusic
+      ); // Создание игровых данных
       this.setupEntities(data); // Настройка игровых объектов
-      Render.init(data); // Инициализация рендера
+      this.renderInstance.init(data); // Инициализация рендера
       this.run(data); // Запуск игры
     } catch (error) {
       console.error("Failed to load assets:", error);
@@ -74,9 +89,6 @@ class Game {
     tileset: HTMLImageElement, // Изображение декораций
     backgroundMusic: HTMLAudioElement | null // Фоновая музыка
   ): Data {
-    const mario = new Mario(spriteSheet, 175, 0, 16, 16); // Создание объекта Марио
-    const score = new Score(5, 15); // Создание объекта счета
-    this.scoreInstance = score; // Сохранение объекта счета
 
     return {
       spriteSheet,
@@ -86,25 +98,37 @@ class Game {
       mapBuilder: new MapBuilder(levelOne, tileset, spriteSheet), // Создание уровня
       sounds: {
         backgroundMusic,
-        breakSound: new Audio("./assets/audio/fx/break_block.wav"), 
-        levelFinish: new Audio("./assets/audio/music/level_complete.mp3"), 
+        breakSound: new Audio("./assets/audio/fx/break_block.wav"),
+        levelFinish: new Audio("./assets/audio/music/level_complete.mp3"),
       },
-      userControl: true, 
+      userControl: true,
       reset: () => this.reset(),
-      entities: { mario, score, coins: [], mushrooms: [], goombas: [], koopas: [], scenery: [] }, // Объекты игровых сущностей
+      entities: {
+        mario: new Mario(spriteSheet, 175, 0, 16, 16),
+        score: this.scoreInstance,
+        coins: [],
+        mushrooms: [],
+        goombas: [],
+        koopas: [],
+        scenery: [],
+      }, // Объекты игровых сущностей
     };
   }
 
   // Настройка игровых объектов
   setupEntities(data: Data) {
-    levelOne.koopas.forEach((koopa) => { // Для каждого объекта Купа в уровне
-      data.entities.koopas.push( // Добавить в массив Купа
+    levelOne.koopas.forEach((koopa) => {
+      // Для каждого объекта Купа в уровне
+      data.entities.koopas.push(
+        // Добавить в массив Купа
         new Koopa(data.spriteSheet, koopa[0], koopa[1], koopa[2], koopa[3]) // Создание объекта Купа
       );
     });
 
-    levelOne.goombas.forEach((goomba) => { // Для каждого объекта Гумба в уровне
-      data.entities.goombas.push( // Добавить в массив Гумба
+    levelOne.goombas.forEach((goomba) => {
+      // Для каждого объекта Гумба в уровне
+      data.entities.goombas.push(
+        // Добавить в массив Гумба
         new Goomba(data.spriteSheet, goomba[0], goomba[1], goomba[2], goomba[3]) // Создание объекта Гумба
       );
     });
@@ -112,7 +136,8 @@ class Game {
 
   // Запуск игры
   run(data: Data) {
-    if (data.sounds.backgroundMusic) { // Если есть фоновая музыка
+    if (data.sounds.backgroundMusic) {
+      // Если есть фоновая музыка
       data.sounds.backgroundMusic.play(); // Воспроизвести музыку
     }
 
@@ -120,29 +145,31 @@ class Game {
     const targetFPS = 60; // Целевое количество кадров в секунду
     const frameInterval = 1000 / targetFPS; // Интервал между кадрами
 
-    const loop = (currentTime: number) => { // Основной игровой цикл
-      if (Physics.gameOver) return; // Если игра завершена, прервать цикл
+    const loop = (currentTime: number) => {
+      // Основной игровой цикл
 
-      if (this.resetRequested && this.animationFrameId) { // Если запрошен сброс и есть текущий кадр анимации
+      if (this.resetRequested && this.animationFrameId) {
+        // Если запрошен сброс и есть текущий кадр анимации
         cancelAnimationFrame(this.animationFrameId); // Отменить анимацию
         this.animationFrameId = null; // Сбросить идентификатор анимации
         this.resetRequested = false; // Сбросить флаг запроса сброса
 
-        return; 
+        return;
       }
 
       const elapsedTime = currentTime - lastFrameTime; // Время, прошедшее с предыдущего кадра
 
-      if (elapsedTime > frameInterval) { // Если прошло достаточно времени для следующего кадра
+      if (elapsedTime > frameInterval) {
+        // Если прошло достаточно времени для следующего кадра
         lastFrameTime = currentTime - (elapsedTime % frameInterval); // Установить время последнего кадра
 
         // Покадровое обновление элементов игры, таких как рендер, физика
-        Input.update(data); 
-        Animation.update(data); 
-        Movement.update(data); 
-        Physics.update(data); 
-        this.updateView(data); 
-        Render.update(data); 
+        this.inputInstance.update(data);
+        this.animationInstance.update(data);
+        this.movementInstance.update(data);
+        this.physicsInstance.update(data);
+        this.updateView(data);
+        this.renderInstance.update(data);
 
         data.animationFrame += 1; // Увеличить номер кадра анимации
       }
@@ -155,20 +182,20 @@ class Game {
 
   // Обновление вида
   updateView(data: Data) {
-    const viewport = data.viewport; 
-    const margin = viewport.width / 6; 
-    const center = { 
+    const viewport = data.viewport;
+    const margin = viewport.width / 6;
+    const center = {
       x: data.entities.mario.xPos + data.entities.mario.width * 0.5,
       y: data.entities.mario.yPos + data.entities.mario.height * 0.5,
     };
 
-    if (center.x < viewport.vX + margin * 2) { 
-      viewport.vX = Math.max(center.x - margin, 0); 
-    } else if (center.x > viewport.vX + viewport.width - margin * 2) { 
+    if (center.x < viewport.vX + margin * 2) {
+      viewport.vX = Math.max(center.x - margin, 0);
+    } else if (center.x > viewport.vX + viewport.width - margin * 2) {
       viewport.vX = Math.min(
         center.x + margin - viewport.width,
         3400 - viewport.width
-      ); 
+      );
     }
   }
 
@@ -176,12 +203,11 @@ class Game {
   reset() {
     this.resetRequested = true; // Установить флаг запроса сброса
 
-    if (this.endGame && this.scoreInstance) { // Если есть функция сохранения счета и объект счета
+    if (this.endGame && this.scoreInstance) {
+      // Если есть функция сохранения счета и объект счета
       this.endGame(this.scoreInstance.value); // Вызвать функцию сохранения счета
     }
-
-    console.log("reset"); // Вывести сообщение о сбросе игры в консоль
   }
 }
 
-export const game = new Game();
+export default Game;

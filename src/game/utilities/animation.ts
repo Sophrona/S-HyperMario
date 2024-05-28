@@ -32,4 +32,4 @@ class Animation {
   }
 }
 
-export default new Animation();
+export default Animation;

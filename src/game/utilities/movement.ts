@@ -25,4 +25,4 @@ class Movement {
   }
 }
 
-export default new Movement();
+export default Movement;
